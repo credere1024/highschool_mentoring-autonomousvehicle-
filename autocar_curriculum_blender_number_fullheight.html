@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자율주행 자동차 만들기 · 커리큘럼</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;
+  --bg2:#111827;
+  --surface:#1a1f35;
+  --surface2:#232942;
+  --border:#2a3155;
+  --cyan:#06d6a0;
+  --cyan2:#00e5cc;
+  --blue:#3b82f6;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --purple:#a78bfa;
+  --pink:#ec4899;
+  --text:#e2e8f0;
+  --text2:#94a3b8;
+  --text3:#64748b;
+  --code-bg:#0d1117;
+  --font-head:'Noto Sans KR', sans-serif;
+  --font-code:'JetBrains Mono', monospace;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-head);
+  font-weight:400;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* ── 배경 패턴 ── */
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(6,214,160,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(59,130,246,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(167,139,250,0.03) 0%, transparent 50%);
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background-image:
+    linear-gradient(rgba(6,214,160,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6,214,160,0.02) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+
+.container{max-width:1040px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,14,26,0.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:12px 0;
+}
+nav .container{display:flex;align-items:center;gap:16px;overflow-x:auto;scrollbar-width:none}
+nav .container::-webkit-scrollbar{display:none}
+.nav-logo{
+  font-family:var(--font-code);font-weight:700;font-size:14px;
+  color:var(--cyan);white-space:nowrap;letter-spacing:1px;
+}
+.nav-logo span{color:var(--text3)}
+.nav-links{display:flex;gap:4px;flex-shrink:0}
+.nav-links a{
+  font-size:12px;color:var(--text3);text-decoration:none;
+  padding:6px 12px;border-radius:6px;white-space:nowrap;
+  transition:all .2s;font-weight:600;letter-spacing:-0.2px;
+}
+.nav-links a:hover,.nav-links a.active{color:var(--cyan);background:rgba(6,214,160,0.08)}
+
+/* ── HERO ── */
+.hero{padding:100px 0 80px;position:relative;overflow:hidden}
+.hero::before{
+  content:'';position:absolute;top:-100px;right:-200px;
+  width:500px;height:500px;
+  background:radial-gradient(circle, rgba(6,214,160,0.08) 0%, transparent 70%);
+  border-radius:50%;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-200px;left:-150px;
+  width:450px;height:450px;
+  background:radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+  border-radius:50%;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.2);
+  padding:6px 16px;border-radius:100px;font-size:13px;color:var(--cyan);
+  font-weight:600;margin-bottom:24px;
+  animation:fadeUp .6s ease both;
+}
+.hero-badge::before{content:'●';font-size:8px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{
+  font-size:clamp(38px,6vw,60px);font-weight:900;
+  line-height:1.15;letter-spacing:-2px;margin-bottom:20px;
+  animation:fadeUp .6s .1s ease both;
+}
+.hero h1 .accent{
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero h1 .accent2{
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p.lead{
+  font-size:18px;color:var(--text2);max-width:640px;line-height:1.8;
+  animation:fadeUp .6s .2s ease both;
+}
+.hero-tags{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:32px;
+  animation:fadeUp .6s .3s ease both;
+}
+.hero-tags span{
+  font-family:var(--font-code);font-size:12px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:7px 14px;border-radius:8px;color:var(--text2);
+}
+.hero-tags span strong{color:var(--cyan);font-weight:700}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION ── */
+section{padding:80px 0;border-top:1px solid var(--border)}
+.section-label{
+  font-family:var(--font-code);font-size:12px;font-weight:700;
+  color:var(--cyan);text-transform:uppercase;letter-spacing:3px;
+  margin-bottom:12px;
+}
+.section-title{
+  font-size:clamp(26px,4vw,38px);font-weight:900;
+  letter-spacing:-1px;margin-bottom:18px;line-height:1.2;
+}
+.section-title .muted{color:var(--text3);font-weight:400}
+.section-intro{
+  font-size:16px;color:var(--text2);max-width:760px;margin-bottom:40px;line-height:1.8;
+}
+
+/* ── SCHEDULE 3 COLUMN ── */
+.schedule-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+}
+@media(max-width:860px){.schedule-grid{grid-template-columns:1fr}}
+.day-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:30px 26px;
+  position:relative;overflow:hidden;transition:all .3s;
+  display:flex;flex-direction:column;
+}
+.day-card:hover{transform:translateY(-4px);border-color:rgba(6,214,160,0.3);box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.day-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:4px;
+  background:var(--accent);
+}
+.day-card .day-num{
+  font-family:var(--font-code);font-size:11px;font-weight:700;
+  letter-spacing:2px;color:var(--accent);margin-bottom:8px;
+}
+.day-card .day-date{
+  font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:4px;
+}
+.day-card .day-when{
+  font-family:var(--font-code);font-size:12px;color:var(--text3);
+  margin-bottom:24px;
+}
+.day-card .day-title{
+  font-size:17px;font-weight:700;margin-bottom:14px;line-height:1.4;
+  color:var(--text);
+}
+.day-card .day-desc{
+  font-size:13.5px;color:var(--text2);line-height:1.75;margin-bottom:20px;flex:1;
+}
+.day-card .day-topics{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;
+}
+.day-card .day-topics span{
+  font-family:var(--font-code);font-size:11px;font-weight:600;
+  padding:5px 10px;border-radius:6px;
+  background:rgba(255,255,255,0.04);color:var(--text2);
+  border:1px solid var(--border);
+}
+.day-card .keyword{
+  display:inline-block;background:rgba(255,255,255,0.06);
+  color:var(--accent);font-weight:700;font-size:12px;
+  padding:6px 12px;border-radius:8px;margin-top:16px;
+  font-family:var(--font-code);letter-spacing:0.5px;
+}
+
+/* ── PROGRESSION 4 STEP ── */
+.progression{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-top:8px;position:relative;
+}
+@media(max-width:860px){.progression{grid-template-columns:1fr;gap:20px}}
+.prog-step{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:28px 24px;
+  position:relative;transition:all .3s;
+}
+.prog-step:hover{border-color:rgba(6,214,160,0.3);transform:translateY(-3px);z-index:2}
+.prog-step .prog-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:14px;
+}
+.prog-step .prog-stage{
+  font-family:var(--font-code);font-size:11px;font-weight:700;
+  letter-spacing:2px;margin-bottom:6px;
+}
+.prog-step h3{font-size:17px;font-weight:800;margin-bottom:10px;letter-spacing:-0.3px}
+.prog-step .prog-why{
+  font-size:13px;color:var(--text2);line-height:1.7;
+}
+.prog-step .prog-why strong{color:var(--text)}
+.prog-step .prog-arrow{
+  position:absolute;right:-28px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:var(--cyan);z-index:3;
+}
+@media(max-width:860px){.prog-arrow{display:none}}
+
+/* ── WHY MODELING (2 col) ── */
+.why-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:32px;align-items:start}
+@media(max-width:780px){.why-grid{grid-template-columns:1fr}}
+.why-body p{font-size:15px;color:var(--text2);margin-bottom:18px;line-height:1.85}
+.why-body p strong{color:var(--text)}
+.why-body .highlight{color:var(--cyan);font-weight:700}
+
+.reason-list{display:flex;flex-direction:column;gap:14px}
+.reason{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px 22px;
+  display:flex;gap:16px;align-items:flex-start;transition:all .3s;
+}
+.reason:hover{border-color:rgba(6,214,160,0.3)}
+.reason .r-num{
+  font-family:var(--font-code);font-size:14px;font-weight:700;
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(6,214,160,0.12);color:var(--cyan);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.reason h4{font-size:15px;font-weight:700;margin-bottom:6px;letter-spacing:-0.2px}
+.reason p{font-size:13px;color:var(--text2);line-height:1.65}
+
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:26px;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.card:hover{border-color:rgba(6,214,160,0.3);transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(6,214,160,0.06)}
+.card-icon{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:14px;
+}
+.card h3{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-0.3px}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.65}
+.card .tag{
+  display:inline-block;margin-top:12px;font-family:var(--font-code);
+  font-size:11px;font-weight:700;letter-spacing:0.5px;
+  padding:4px 10px;border-radius:6px;
+}
+
+/* ── CODE BLOCKS ── */
+.code-section{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:700px){.code-section{grid-template-columns:1fr}}
+.code-block{
+  background:var(--code-bg);
+  border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+}
+.code-header{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 20px;background:rgba(255,255,255,0.03);
+  border-bottom:1px solid var(--border);
+}
+.code-dots{display:flex;gap:6px}
+.code-dots span{width:10px;height:10px;border-radius:50%;background:var(--border)}
+.code-dots span:nth-child(1){background:#ef4444}
+.code-dots span:nth-child(2){background:#f59e0b}
+.code-dots span:nth-child(3){background:#22c55e}
+.code-title{font-family:var(--font-code);font-size:12px;color:var(--text3);margin-left:auto}
+pre{
+  padding:20px;margin:0;overflow-x:auto;
+  font-family:var(--font-code);font-size:13px;line-height:1.8;
+}
+pre .kw{color:#ff7b72}
+pre .fn{color:#d2a8ff}
+pre .str{color:#a5d6ff}
+pre .num{color:#79c0ff}
+pre .cmt{color:#484f58;font-style:italic}
+pre .type{color:#ffa657}
+pre .var{color:var(--cyan2)}
+
+/* ── INFO BOXES ── */
+.info-box{
+  border-radius:14px;padding:22px 26px;margin:24px 0;
+  display:flex;gap:16px;align-items:flex-start;
+}
+.info-box.tip{background:rgba(6,214,160,0.06);border-left:3px solid var(--cyan)}
+.info-box.warn{background:rgba(245,158,11,0.06);border-left:3px solid var(--amber)}
+.info-box.danger{background:rgba(239,68,68,0.06);border-left:3px solid var(--red)}
+.info-box.quote{background:rgba(167,139,250,0.06);border-left:3px solid var(--purple)}
+.info-box .icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.info-box .content{font-size:14px;color:var(--text2);line-height:1.75}
+.info-box .content strong{color:var(--text)}
+
+/* ── FUNCTION REF ── */
+.func-ref{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:18px 22px;margin:10px 0;
+  display:flex;align-items:center;gap:18px;transition:all .3s;
+}
+.func-ref:hover{border-color:rgba(6,214,160,0.3)}
+.func-ref .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.func-ref code{font-family:var(--font-code);font-size:14px;font-weight:600;white-space:nowrap}
+.func-ref .desc{font-size:13px;color:var(--text2);margin-left:auto;text-align:right}
+
+/* ── STEPS ── */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px}
+.step{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:24px 20px;text-align:center;
+  position:relative;transition:all .3s;
+}
+.step:hover{border-color:rgba(6,214,160,0.3);transform:translateY(-2px)}
+.step-num{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-code);font-size:16px;font-weight:700;
+  margin:0 auto 14px;
+}
+.step h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.step p{font-size:12px;color:var(--text2)}
+
+/* ── CIRCUIT BOX ── */
+.circuit{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:18px 22px;margin:16px 0;
+  font-family:var(--font-code);font-size:13px;color:var(--amber);
+}
+.circuit strong{color:var(--text)}
+
+/* ── BOARD PARTS ── */
+.board-parts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:600px){.board-parts{grid-template-columns:1fr}}
+.board-part{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-radius:10px;
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+}
+.board-part .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.board-part strong{font-size:13px}
+.board-part span{font-size:12px;color:var(--text2)}
+
+/* ── LINE TRACER LOGIC TABLE ── */
+.logic-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px;
+}
+@media(max-width:780px){.logic-grid{grid-template-columns:repeat(2,1fr)}}
+.logic-case{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:20px;text-align:center;transition:all .3s;
+}
+.logic-case:hover{border-color:rgba(6,214,160,0.3);transform:translateY(-2px)}
+.logic-case .lc-sensors{
+  display:flex;justify-content:center;gap:10px;margin-bottom:14px;
+}
+.logic-case .lc-dot{
+  width:24px;height:24px;border-radius:50%;
+  border:2px solid var(--border);background:transparent;
+}
+.logic-case .lc-dot.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 12px rgba(6,214,160,0.5)}
+.logic-case .lc-state{
+  font-family:var(--font-code);font-size:11px;color:var(--text3);margin-bottom:8px;
+}
+.logic-case h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.logic-case p{font-size:12px;color:var(--text2)}
+
+/* ── PROJECT COVER (표지) — HERO 톤 ── */
+.project-cover{
+  position:relative;
+  padding:90px 40px 80px;
+  margin:0 -24px 48px;
+  overflow:hidden;
+  text-align:center;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.project-cover::before{
+  content:'';position:absolute;top:-150px;left:50%;
+  transform:translateX(-50%);
+  width:600px;height:400px;
+  background:radial-gradient(ellipse, rgba(6,214,160,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.project-cover .cover-tag{
+  position:relative;z-index:2;
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(6,214,160,0.1);border:1px solid rgba(6,214,160,0.2);
+  padding:6px 16px;border-radius:100px;font-size:13px;color:var(--cyan);
+  font-weight:600;margin-bottom:24px;
+}
+.project-cover .cover-tag::before{
+  content:'●';font-size:8px;animation:pulse 2s infinite;
+}
+.project-cover .cover-title{
+  position:relative;z-index:2;
+  font-size:clamp(34px,5vw,52px);font-weight:900;
+  letter-spacing:-1.5px;line-height:1.15;
+  margin-bottom:14px;color:var(--text);
+}
+.project-cover .cover-title .accent{
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.project-cover .cover-en{
+  position:relative;z-index:2;
+  font-family:var(--font-code);font-size:13px;font-weight:600;
+  letter-spacing:3px;color:var(--text3);
+  margin-bottom:26px;text-transform:uppercase;
+}
+.project-cover .cover-desc{
+  position:relative;z-index:2;
+  font-size:16px;color:var(--text2);line-height:1.85;
+  max-width:640px;margin:0 auto;
+}
+.project-cover .cover-desc strong{color:var(--text)}
+.project-cover .cover-tags{
+  position:relative;z-index:2;
+  display:flex;flex-wrap:wrap;justify-content:center;gap:10px;
+  margin-top:30px;
+}
+.project-cover .cover-tags span{
+  font-family:var(--font-code);font-size:12px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:7px 14px;border-radius:8px;color:var(--text2);
+}
+.project-cover .cover-tags span strong{color:var(--cyan);font-weight:700}
+
+/* ── KEY DEMO CARDS (Blender 단축키 가이드) ── */
+.keymap-grid{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  max-width:920px;
+  margin:0 auto;
+  position:relative;
+  counter-reset:keymap-step;
+}
+.keymap-grid::before{
+  content:'';
+  position:absolute;
+  left:34px;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:linear-gradient(to bottom, rgba(6,214,160,0.15), rgba(6,214,160,0.04));
+}
+.keymap-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:18px;padding:24px 26px 24px 92px;
+  display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;
+  align-items:center;
+  position:relative;
+  overflow:hidden;
+  transition:all .3s;
+}
+.keymap-card::before{
+  counter-increment:keymap-step;
+  content:counter(keymap-step, decimal-leading-zero);
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:68px;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg, rgba(6,214,160,0.16), rgba(6,214,160,0.04));
+  border-right:1px solid rgba(6,214,160,0.25);
+  color:var(--cyan);
+  font-family:var(--font-code);font-size:14px;font-weight:800;
+  letter-spacing:1px;
+  box-shadow:inset -10px 0 24px rgba(6,214,160,0.035);
+  z-index:2;
+}
+.keymap-card:hover{
+  border-color:rgba(6,214,160,0.3);
+  transform:translateY(-3px);
+  box-shadow:0 12px 32px rgba(0,0,0,0.25);
+}
+.keymap-info{}
+.keymap-info .kbd{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:52px;height:42px;padding:0 16px;
+  font-family:var(--font-code);font-size:17px;font-weight:700;
+  color:var(--text);
+  background:var(--bg);
+  border:1px solid #3a4570;
+  border-bottom:4px solid #1a1f35;
+  border-radius:10px;
+  margin-bottom:14px;letter-spacing:0.5px;
+}
+.keymap-info .kbd-wide{font-size:13px;padding:0 16px;letter-spacing:0.8px}
+.keymap-info h4{font-size:19px;font-weight:700;margin-bottom:7px;color:var(--text);letter-spacing:-0.3px}
+.keymap-info p{font-size:14px;color:var(--text2);line-height:1.7}
+.keymap-info p strong{color:var(--text)}
+
+/* ── GIF SLOT (확대됨) ── */
+.gif-slot{
+  width:100%;height:200px;
+  background:#0a0e1a;border:1px solid var(--border);
+  border-radius:12px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  perspective:800px;
+}
+.gif-slot::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(6,214,160,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6,214,160,0.05) 1px, transparent 1px);
+  background-size:14px 14px;
+  pointer-events:none;
+}
+.gif-slot img{
+  width:100%;height:100%;object-fit:cover;
+  position:relative;z-index:3;display:block;
+}
+
+/* ── DEMO SHAPE (CSS animation placeholder) ── */
+.demo-shape{
+  width:54px;height:54px;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));
+  border-radius:8px;
+  position:relative;z-index:2;
+  box-shadow:0 0 28px rgba(6,214,160,0.35);
+}
+.demo-shape.anim-g  { animation:demoG  2.6s ease-in-out infinite }
+.demo-shape.anim-r  { animation:demoR  2.6s linear         infinite }
+.demo-shape.anim-s  { animation:demoS  2.2s ease-in-out infinite }
+.demo-shape.anim-e  { animation:demoE  2.6s ease-in-out infinite }
+.demo-shape.anim-tab{ animation:demoTab 2.8s ease-in-out infinite }
+.demo-shape.anim-add{ animation:demoAdd 2.6s ease-in-out infinite }
+.demo-shape.anim-x  { animation:demoX  2.6s ease-in-out infinite }
+@keyframes demoG  { 0%,100%{transform:translateX(-95px)} 50%{transform:translateX(95px)} }
+@keyframes demoR  { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+@keyframes demoS  { 0%,100%{transform:scale(0.35)} 50%{transform:scale(1.8)} }
+@keyframes demoE  { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(2.6) translateY(-22px)} }
+@keyframes demoTab{
+  0%,40%  {transform:rotateY(0);  background:linear-gradient(135deg,var(--cyan),var(--blue))}
+  50%,90% {transform:rotateY(180deg); background:linear-gradient(135deg,var(--amber),var(--red))}
+  100%    {transform:rotateY(360deg); background:linear-gradient(135deg,var(--cyan),var(--blue))}
+}
+@keyframes demoAdd{
+  0%       {transform:scale(0)  rotate(-90deg); opacity:0}
+  25%      {transform:scale(1.3) rotate(0);     opacity:1}
+  40%,80%  {transform:scale(1.1) rotate(0);     opacity:1}
+  100%     {transform:scale(0)  rotate(90deg);  opacity:0}
+}
+@keyframes demoX{
+  0%,40%   {transform:scale(1.1) rotate(0);    opacity:1}
+  70%      {transform:scale(0.35) rotate(180deg); opacity:0.3}
+  90%,100% {transform:scale(0) rotate(360deg); opacity:0}
+}
+
+/* ── ARDUINO PIN MAP ── */
+.pinmap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:24px 22px;margin:20px 0 30px;
+  overflow:hidden;
+}
+.pinmap-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:16px;flex-wrap:wrap;gap:10px;
+}
+.pinmap-title{
+  font-size:13px;font-weight:700;color:var(--text2);
+  font-family:var(--font-code);letter-spacing:1.5px;
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+.pinmap-title::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--cyan)}
+.pinmap-sub{font-size:12px;color:var(--text3);font-family:var(--font-code);letter-spacing:1px}
+.pinmap-img{
+  display:block;width:100%;max-width:100%;height:auto;
+  object-fit:contain;
+  border-radius:10px;
+  background:#0a0e1a;
+  border:1px solid var(--border);
+  margin-bottom:4px;
+}
+.pinmap-img:not([src]),
+.pinmap-img[src=""]{
+  min-height:200px;
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(255,255,255,0.02) 0 10px,
+      transparent 10px 20px),
+    #0a0e1a;
+}
+.pinmap-legend{
+  display:flex;flex-wrap:wrap;gap:14px;
+  margin-top:18px;padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.pinmap-legend .item{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;color:var(--text2);
+}
+.pinmap-legend .item .sw{
+  width:12px;height:12px;border-radius:3px;flex-shrink:0;
+}
+
+.big-block{
+  background:linear-gradient(135deg, rgba(6,214,160,0.08), rgba(59,130,246,0.04));
+  border:1px solid rgba(6,214,160,0.2);
+  border-radius:20px;padding:36px 40px;margin:24px 0;
+}
+.big-block .label{
+  font-family:var(--font-code);font-size:12px;font-weight:700;
+  letter-spacing:2px;color:var(--cyan);margin-bottom:10px;
+}
+.big-block .big-q{
+  font-size:clamp(20px,3vw,26px);font-weight:800;letter-spacing:-0.5px;
+  line-height:1.4;margin-bottom:16px;color:var(--text);
+}
+.big-block .big-a{
+  font-size:15px;color:var(--text2);line-height:1.85;
+}
+.big-block .big-a strong{color:var(--cyan)}
+
+/* ── SCROLL ANIMATIONS ── */
+.reveal{opacity:0;transform:translateY(24px);transition:all .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);padding:50px 0;
+  text-align:center;color:var(--text3);font-size:13px;
+}
+footer .next{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,rgba(6,214,160,0.1),rgba(59,130,246,0.1));
+  border:1px solid rgba(6,214,160,0.2);
+  padding:16px 32px;border-radius:14px;
+  font-size:16px;font-weight:700;color:var(--cyan);
+  margin-bottom:20px;
+}
+
+@media(max-width:760px){
+  .keymap-card{
+    grid-template-columns:1fr;
+    padding:22px 20px 22px 82px;
+    gap:18px;
+  }
+  .keymap-card::before{
+    width:58px;
+    font-size:13px;
+  }
+  .keymap-grid::before{
+    left:29px;
+  }
+  .gif-slot{height:170px}
+}
+@media(max-width:600px){
+  nav .container{gap:10px}
+  section{padding:60px 0}
+  .keymap-grid{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-logo">AutonomousVehicle<span>.curriculum</span></div>
+    <div class="nav-links">
+      <a href="#intro">소개</a>
+      <a href="#schedule">일정</a>
+      <a href="#why-order">학습 순서</a>
+      <a href="#why-modeling">모델링</a>
+      <a href="#arduino">아두이노</a>
+      <a href="#linetracer">라인트레이서</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ ① HERO / 제목 + 소개 ═══════════════════ -->
+<header class="hero" id="intro">
+  <div class="container">
+    <div class="hero-badge">AUTONOMOUS VEHICLE · MENTORING</div>
+    <h1>아두이노부터 <span class="accent">YOLO</span>까지,<br>
+    <span class="accent2">자율주행 자동차</span>를 직접 만든다</h1>
+    <p class="lead">
+      이 수업은 단순히 부품을 조립하는 수업이 아닙니다.
+      <strong style="color:var(--text)">차의 몸을 디자인(3D 모델링)</strong>하고,
+      <strong style="color:var(--text)">몸을 움직이고(아두이노)</strong>,
+      <strong style="color:var(--text)">두뇌를 달고(라즈베리파이 · OpenCV)</strong>,
+      마지막으로 <strong style="color:var(--text)">눈을 똑똑하게 만드는 것(YOLO)</strong>까지,
+      자율주행차 한 대를 처음부터 끝까지 직접 만들어보는 3일간의 프로젝트입니다.
+    </p>
+    <div class="hero-tags">
+      <span><strong>DAY 1</strong> Blender · Arduino · Line Tracer</span>
+      <span><strong>DAY 2</strong> Raspberry Pi · OpenCV · Lane Detection</span>
+      <span><strong>DAY 3</strong> YOLO · Sign Recognition</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════ ② 수업 일정 (3칸) ═══════════════════ -->
+<section id="schedule">
+  <div class="container">
+    <div class="section-label reveal">SCHEDULE</div>
+    <h2 class="section-title reveal">3일간의 <span class="muted">수업 일정</span></h2>
+    <p class="section-intro reveal">
+      총 3회차로 진행됩니다. 각 회차는 이전 회차에서 만든 결과물 위에 새로운 능력을 얹는 방식으로 설계되어 있어,
+      마지막 날에는 처음 만들었던 라인트레이서가 카메라로 표지판을 알아보는 자율주행차로 진화하게 됩니다.
+    </p>
+
+    <div class="schedule-grid">
+
+      <!-- DAY 1 -->
+      <div class="day-card reveal" style="--accent:var(--cyan)">
+        <div class="day-num">DAY 01</div>
+        <div class="day-date">14일 (토)</div>
+        <div class="day-when">SATURDAY · 1회차</div>
+        <div class="day-title">🏎️ 차의 몸과 신경계 만들기</div>
+        <div class="day-desc">
+          블렌더로 차체를 모델링하고, 아두이노 기초를 익힌 뒤
+          IR 센서와 모터를 결합해 검은 선을 따라 달리는
+          <strong style="color:var(--text)">라인트레이서</strong>를 완성합니다.
+        </div>
+        <div class="day-topics">
+          <span>3D Modeling</span>
+          <span>Blender</span>
+          <span>Arduino 기초</span>
+          <span>센서</span>
+          <span>모터 제어</span>
+          <span>Line Tracer</span>
+        </div>
+        <span class="keyword">움직임 · MOTION</span>
+      </div>
+
+      <!-- DAY 2 -->
+      <div class="day-card reveal" style="--accent:var(--blue)">
+        <div class="day-num">DAY 02</div>
+        <div class="day-date">15일 (일)</div>
+        <div class="day-when">SUNDAY · 2회차</div>
+        <div class="day-title">🧠 두뇌 달아주기 — 라즈베리파이 + OpenCV</div>
+        <div class="day-desc">
+          어제 만든 라인트레이서를 업그레이드합니다.
+          <strong style="color:var(--text)">라즈베리파이</strong>와 카메라를 달고,
+          <strong style="color:var(--text)">OpenCV</strong>로 영상에서 직접 차선을 검출해
+          그 정보를 따라 주행하는 차로 진화시킵니다.
+        </div>
+        <div class="day-topics">
+          <span>Raspberry Pi</span>
+          <span>Python</span>
+          <span>OpenCV</span>
+          <span>Camera</span>
+          <span>Lane Detection</span>
+          <span>Pi ↔ Arduino 통신</span>
+        </div>
+        <span class="keyword" style="color:var(--blue)">시각 · VISION</span>
+      </div>
+
+      <!-- DAY 3 -->
+      <div class="day-card reveal" style="--accent:var(--purple)">
+        <div class="day-num">DAY 03</div>
+        <div class="day-date">20일 (토)</div>
+        <div class="day-when">SATURDAY · 3회차</div>
+        <div class="day-title">🚦 똑똑한 눈 — YOLO로 표지판 인식</div>
+        <div class="day-desc">
+          딥러닝 객체 인식 모델인 <strong style="color:var(--text)">YOLO</strong>를 배우고,
+          도로의 <strong style="color:var(--text)">표지판과 노면 표시</strong>를 실시간으로 인식해
+          상황에 맞게 반응하는 진짜 자율주행 자동차로 마무리합니다.
+        </div>
+        <div class="day-topics">
+          <span>YOLO</span>
+          <span>Deep Learning</span>
+          <span>객체 검출</span>
+          <span>표지판 인식</span>
+          <span>실시간 추론</span>
+          <span>최종 통합</span>
+        </div>
+        <span class="keyword" style="color:var(--purple)">판단 · INTELLIGENCE</span>
+      </div>
+
+    </div>
+
+    <div class="info-box tip reveal" style="margin-top:32px">
+      <span class="icon">🎯</span>
+      <div class="content">
+        <strong>한 줄 요약:</strong> 1일차에 <em>"움직이는 차"</em>를 만들고, 2일차에 <em>"보는 차"</em>로 업그레이드하고,
+        3일차에 <em>"이해하는 차"</em>로 완성합니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ③ 왜 이 순서로 진행하는가 ═══════════════════ -->
+<section id="why-order">
+  <div class="container">
+    <div class="section-label reveal">LEARNING PATH</div>
+    <h2 class="section-title reveal">왜 <span class="muted">모델링 → 아두이노 → 라즈베리파이 → YOLO</span> 순서일까?</h2>
+    <p class="section-intro reveal">
+      자율주행 자동차는 사람의 몸과 똑같은 구조를 가지고 있습니다.
+      <strong style="color:var(--text)">몸 → 신경 → 두뇌 → 지능</strong> 순서로 쌓아 올려야 각 단계의 역할이 명확해지고,
+      앞에서 만든 것이 자연스럽게 다음 단계의 재료가 됩니다.
+      이게 우리가 이 순서를 고른 이유입니다.
+    </p>
+
+    <div class="progression">
+      <div class="prog-step reveal">
+        <div class="prog-icon" style="background:rgba(6,214,160,0.12);color:var(--cyan)">🧊</div>
+        <div class="prog-stage" style="color:var(--cyan)">STAGE 01 · 몸</div>
+        <h3>모델링</h3>
+        <p class="prog-why">
+          모든 하드웨어는 <strong>물리적 공간을 차지</strong>합니다. 모터를 어디 둘지, 센서를 어느 높이에 둘지
+          미리 설계해야 회로가 안정적으로 작동합니다. <strong>"먼저 차의 모양을 정해야 안에 뭘 넣을지 정한다"</strong>는 단순한 원칙이에요.
+        </p>
+        <div class="prog-arrow">→</div>
+      </div>
+
+      <div class="prog-step reveal">
+        <div class="prog-icon" style="background:rgba(59,130,246,0.12);color:var(--blue)">⚡</div>
+        <div class="prog-stage" style="color:var(--blue)">STAGE 02 · 신경</div>
+        <h3>아두이노</h3>
+        <p class="prog-why">
+          몸이 생기면 <strong>몸을 움직일 신경계</strong>가 필요합니다. 아두이노는 작고 빠르고 정확하게
+          모터를 돌리고 센서를 읽는 데 최적이죠. <strong>저수준 제어를 먼저 배우면</strong> 다음에 두뇌가
+          어떻게 신경에게 명령하는지 자연스럽게 이해됩니다.
+        </p>
+        <div class="prog-arrow">→</div>
+      </div>
+
+      <div class="prog-step reveal">
+        <div class="prog-icon" style="background:rgba(167,139,250,0.12);color:var(--purple)">🧠</div>
+        <div class="prog-stage" style="color:var(--purple)">STAGE 03 · 두뇌</div>
+        <h3>라즈베리파이</h3>
+        <p class="prog-why">
+          신경(아두이노)이 갖춰지면 그 위에 <strong>판단을 내리는 두뇌</strong>가 필요합니다. 라즈베리파이는
+          리눅스가 돌고 카메라가 붙는 작은 컴퓨터예요. <strong>OpenCV로 영상을 분석</strong>한 결과를
+          아두이노에게 "왼쪽으로 가" "오른쪽으로 가" 라고 명령합니다.
+        </p>
+        <div class="prog-arrow">→</div>
+      </div>
+
+      <div class="prog-step reveal">
+        <div class="prog-icon" style="background:rgba(236,72,153,0.12);color:var(--pink)">🎯</div>
+        <div class="prog-stage" style="color:var(--pink)">STAGE 04 · 지능</div>
+        <h3>YOLO</h3>
+        <p class="prog-why">
+          마지막은 <strong>지능</strong>입니다. OpenCV가 "선이 어디 있는가"라면 YOLO는 "저게 정지 표지판인가, 우회전 표지판인가"를
+          판단합니다. <strong>딥러닝은 이미 영상 처리가 익숙해진 다음에 배워야</strong> 진가를 알 수 있어요.
+        </p>
+      </div>
+    </div>
+
+    <div class="info-box quote reveal" style="margin-top:36px">
+      <span class="icon">💬</span>
+      <div class="content">
+        <strong>핵심:</strong> 이 순서를 거꾸로 가면, 두뇌가 명령해도 몸이 못 움직이고 무엇이 안 되는지조차 알 수 없습니다.
+        <em>"무엇이 어디까지 책임지는지"</em>를 단계마다 확실히 체득하는 것 — 그게 이 순서의 진짜 목적입니다.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ④ 왜 모델링이 중요한가 ═══════════════════ -->
+<section id="why-modeling">
+  <div class="container">
+
+    <!-- 표지 (Cover) -->
+    <div class="project-cover reveal">
+      <div class="cover-tag">CHAPTER · 3D MODELING</div>
+      <h2 class="cover-title">3D <span class="accent">모델링</span></h2>
+      <div class="cover-en">Designing the Body with Blender</div>
+      <div class="cover-desc">
+        모든 자율주행차는 <strong>물리적인 몸</strong>을 가집니다. 모터를 어디 둘지, 센서를 어느 높이에 둘지 —
+        이 모든 것이 <strong>"먼저 모양을 정해야" 결정됩니다</strong>. 그래서 우리는 코딩 전에 블렌더부터 켭니다.
+      </div>
+      <div class="cover-tags">
+        <span><strong>TOOL</strong> Blender</span>
+        <span><strong>OUTPUT</strong> STL</span>
+        <span><strong>NEXT</strong> 3D Print</span>
+      </div>
+    </div>
+
+    <div class="section-label reveal">CHAPTER · WHY MODELING</div>
+    <h2 class="section-title reveal">피지컬 컴퓨팅인데, <span class="muted">왜 3D 모델링부터?</span></h2>
+
+    <div class="why-grid">
+      <div class="why-body reveal">
+        <p>
+          많은 학생들이 처음에 이렇게 묻습니다. <strong>"코딩 수업인데 왜 블렌더부터 켜요?"</strong>
+        </p>
+        <p>
+          이유는 단순합니다. <span class="highlight">피지컬 컴퓨팅은 "물리적인" 컴퓨팅</span>이거든요.
+          코드는 가상 세계에서 끝나지 않고, 실제로 회전하는 바퀴와 감지하는 센서, 그리고 그것들이 매달려 있을
+          <strong>"몸체"</strong>로 결과를 냅니다. 그 몸체가 엉성하면 아무리 코드가 완벽해도 차는 비뚤어지게 굴러갑니다.
+        </p>
+        <p>
+          또 자율주행에서는 <strong>센서의 위치 = 알고리즘의 성능</strong>입니다.
+          IR 센서를 너무 높이 달면 라인을 못 보고, 카메라가 흔들리면 OpenCV로 차선을 못 찾습니다.
+          <span class="highlight">"하드웨어의 형태가 곧 소프트웨어의 제약"</span>이라는 사실을 실제로 깨닫는 시간입니다.
+        </p>
+        <p>
+          그리고 한 가지 더 — 자율주행은 <strong>여러 분야가 합쳐진 종합 학문</strong>입니다.
+          모델링을 배우면 학생들이 "내가 만든 차"라는 애착을 갖게 되고, 이게 끝까지 끌고 가는 가장 큰 동력이 됩니다.
+        </p>
+      </div>
+
+      <div class="reason-list reveal">
+        <div class="reason">
+          <div class="r-num">1</div>
+          <div>
+            <h4>설계가 먼저, 회로는 그 다음</h4>
+            <p>모터 두 개의 위치, 센서 사이의 간격, 배터리 무게 중심 — 모델링 단계에서 결정된 게 그대로 주행 성능을 좌우합니다.</p>
+          </div>
+        </div>
+        <div class="reason">
+          <div class="r-num">2</div>
+          <div>
+            <h4>3D 프린팅과 직결</h4>
+            <p>오늘 만든 STL 파일이 다음 차시의 진짜 부품이 됩니다. "그린 게 손에 잡힌다"는 경험은 코딩과는 또 다른 동기를 줍니다.</p>
+          </div>
+        </div>
+        <div class="reason">
+          <div class="r-num">3</div>
+          <div>
+            <h4>공간 감각 = 디버깅 능력</h4>
+            <p>센서가 어디를 보고 있는지 3D로 상상할 수 있어야, 차가 왜 라인을 놓쳤는지 코드만 보고도 추론할 수 있게 됩니다.</p>
+          </div>
+        </div>
+        <div class="reason">
+          <div class="r-num">4</div>
+          <div>
+            <h4>"내 차"라는 애착</h4>
+            <p>이건 기술적이지는 않지만 가장 중요합니다. 직접 디자인한 차여야 끝까지 만들고 싶어집니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box tip reveal" style="margin-top:32px">
+      <span class="icon">🧊</span>
+      <div class="content">
+        <strong>오늘의 모델링 목표:</strong> Blender 기본 조작(G/R/S, Extrude, Boolean) 익히기 →
+        모터·센서·아두이노가 모두 들어가는 <strong>섀시(차체)</strong> 설계 → STL 내보내기.
+        정확한 치수보다 <em>"왜 이 형태여야 하는지"</em>를 이해하는 것이 목표입니다.
+      </div>
+    </div>
+
+    <!-- ────────── 블렌더 단축키 가이드 ────────── -->
+    <h3 class="reveal" style="font-size:22px;font-weight:800;margin:64px 0 12px;letter-spacing:-0.5px">🎬 블렌더 단축키 — 7개만 외우면 끝</h3>
+    <p class="reveal" style="font-size:14.5px;color:var(--text2);line-height:1.85;margin-bottom:24px;max-width:780px">
+      블렌더는 마우스보다 <strong style="color:var(--text)">키보드 단축키</strong>로 작업합니다. 처음엔 막막해도 아래 7개만 익히면 오늘 수업의 90%는 해결됩니다.
+      각 상자는 위에서 아래로 순서대로 배치되어 있고, 오른쪽 작은 화면이 실제 동작 모습이에요.
+    </p>
+
+    <div class="keymap-grid reveal">
+      <!-- G : Grab / Move -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd">G</div>
+          <h4>이동 · Grab</h4>
+          <p>오브젝트를 잡고 끌어 이동합니다. <strong>G</strong> 누른 뒤 <strong>X·Y·Z</strong>를 입력하면 그 축으로만 고정 이동돼요.</p>
+        </div>
+        <div class="gif-slot" data-key="G">
+          <img src="https://raw.githubusercontent.com/credere1024/highschool_mentoring-autonomousvehicle-/main/blender_movemotion.gif" alt="G key — Move">
+        </div>
+      </div>
+
+      <!-- R : Rotate -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd">R</div>
+          <h4>회전 · Rotate</h4>
+          <p>오브젝트를 돌립니다. <strong>R Z 90</strong> 처럼 숫자를 입력하면 정확한 각도로 회전.</p>
+        </div>
+        <div class="gif-slot" data-key="R">
+          <img src="https://raw.githubusercontent.com/credere1024/highschool_mentoring-autonomousvehicle-/main/blender_rotationmotion.gif" alt="R key — Rotate">
+        </div>
+      </div>
+
+      <!-- S : Scale -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd">S</div>
+          <h4>크기 · Scale</h4>
+          <p>크기를 키우거나 줄입니다. <strong>S X 2</strong> 처럼 축과 배수 입력 가능.</p>
+        </div>
+        <div class="gif-slot" data-key="S">
+          <img src="https://raw.githubusercontent.com/credere1024/highschool_mentoring-autonomousvehicle-/main/blender_scalemotion.gif" alt="S key — Scale">
+        </div>
+      </div>
+
+      <!-- E : Extrude -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd">E</div>
+          <h4>돌출 · Extrude</h4>
+          <p>면을 뽑아내 형태를 확장합니다. (Edit 모드에서만 동작) 차체 받침대를 만들 때 핵심.</p>
+        </div>
+        <div class="gif-slot" data-key="E">
+          <div class="demo-shape anim-e"></div>
+        </div>
+      </div>
+
+      <!-- Tab : Mode Toggle -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd kbd-wide">Tab</div>
+          <h4>모드 전환 · Object ↔ Edit</h4>
+          <p>오브젝트 전체를 다룰지(Object), 점·선·면을 다룰지(Edit) 모드를 전환합니다.</p>
+        </div>
+        <div class="gif-slot" data-key="Tab">
+          <div class="demo-shape anim-tab"></div>
+        </div>
+      </div>
+
+      <!-- Shift+A : Add -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd kbd-wide">Shift + A</div>
+          <h4>추가 · Add Menu</h4>
+          <p>큐브·실린더·구 같은 기본 도형을 추가합니다. 모델링은 거의 여기서 시작.</p>
+        </div>
+        <div class="gif-slot" data-key="Add">
+          <div class="demo-shape anim-add"></div>
+        </div>
+      </div>
+
+      <!-- X : Delete -->
+      <div class="keymap-card">
+        <div class="keymap-info">
+          <div class="kbd">X</div>
+          <h4>삭제 · Delete</h4>
+          <p>선택한 오브젝트/점/선/면을 지웁니다. 메뉴가 뜨면 무엇을 지울지 선택.</p>
+        </div>
+        <div class="gif-slot" data-key="X">
+          <div class="demo-shape anim-x"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ⑤ 아두이노 기초 ═══════════════════ -->
+<section id="arduino">
+  <div class="container">
+    <div class="section-label reveal">CHAPTER · ARDUINO BASICS</div>
+    <h2 class="section-title reveal">아두이노 기초 <span class="muted">— 신경계 만들기</span></h2>
+    <p class="section-intro reveal">
+      아두이노는 작은 마이크로컨트롤러 보드입니다. 코드 한 줄로 LED를 켜고, 모터를 돌리고, 센서 값을 읽을 수 있어요.
+      라인트레이서를 만들기 전에 꼭 알아야 하는 기초들을 짧고 명확하게 정리합니다.
+    </p>
+
+    <!-- 아두이노 UNO 구조 -->
+    <div class="code-section reveal">
+      <div>
+        <h3 style="font-size:17px;font-weight:700;margin-bottom:14px">🛠️ Arduino UNO 한눈에 보기</h3>
+        <p style="font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.8">
+          우리가 사용할 보드는 <strong style="color:var(--cyan)">Arduino UNO R3</strong>. 가장 기본이자 가장 자료가 많은 보드입니다.
+          C/C++ 기반의 간단한 문법으로 프로그래밍해요.
+        </p>
+        <div class="board-parts">
+          <div class="board-part"><span class="dot" style="background:var(--cyan)"></span><div><strong>D0~D13</strong><br><span>디지털 핀 (HIGH/LOW)</span></div></div>
+          <div class="board-part"><span class="dot" style="background:var(--purple)"></span><div><strong>A0~A5</strong><br><span>아날로그 핀 (0~1023)</span></div></div>
+          <div class="board-part"><span class="dot" style="background:var(--red)"></span><div><strong>5V / 3.3V / GND</strong><br><span>전원 공급 핀</span></div></div>
+          <div class="board-part"><span class="dot" style="background:var(--amber)"></span><div><strong>USB 포트</strong><br><span>업로드 &amp; 전원</span></div></div>
+          <div class="board-part"><span class="dot" style="background:var(--blue)"></span><div><strong>리셋 버튼</strong><br><span>프로그램 재시작</span></div></div>
+          <div class="board-part"><span class="dot" style="background:var(--pink)"></span><div><strong>PWM 핀(~)</strong><br><span>3,5,6,9,10,11 속도 조절</span></div></div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">sketch.ino — 모든 아두이노 코드의 뼈대</span>
+        </div>
+<pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="cmt">// 전원이 켜질 때 딱 1번 실행</span>
+  <span class="cmt">// 핀 모드 설정, 시리얼 시작 등</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// setup 이후 무한 반복</span>
+  <span class="cmt">// 실제 동작 코드는 모두 여기에</span>
+}</pre>
+      </div>
+    </div>
+
+    <!-- ────────── ARDUINO UNO 핀맵 ────────── -->
+    <div class="pinmap reveal">
+      <div class="pinmap-head">
+        <div class="pinmap-title">Arduino UNO R3 · PINOUT</div>
+        <div class="pinmap-sub">14 Digital + 6 Analog + Power</div>
+      </div>
+      <img
+        src="https://raw.githubusercontent.com/credere1024/highschool_mentoring-autonomousvehicle-/main/arduino_pinmapIMG_for_mentoring.png"
+        alt="Arduino UNO R3 핀맵 이미지"
+        class="pinmap-img"
+        loading="lazy"
+        decoding="async">
+
+
+      <div class="pinmap-legend">
+        <span class="item"><span class="sw" style="background:#06d6a0"></span> 디지털 (HIGH/LOW)</span>
+        <span class="item"><span class="sw" style="background:#ec4899"></span> PWM (~3,5,6,9,10,11)</span>
+        <span class="item"><span class="sw" style="background:#f59e0b"></span> TX/RX (시리얼 통신)</span>
+        <span class="item"><span class="sw" style="background:#a78bfa"></span> 아날로그 입력 (0~1023)</span>
+        <span class="item"><span class="sw" style="background:#ef4444"></span> 전원 (5V/3.3V/VIN)</span>
+        <span class="item"><span class="sw" style="background:#64748b"></span> GND (접지)</span>
+        <span class="item"><span class="sw" style="background:#3b82f6"></span> 리셋</span>
+      </div>
+    </div>
+
+    <!-- 디지털 출력: LED -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:56px 0 20px;letter-spacing:-0.5px">① 디지털 출력 — LED 깜빡이기 (Blink)</h3>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">Blink.ino</span>
+        </div>
+<pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="num">13</span>, <span class="type">OUTPUT</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="fn">digitalWrite</span>(<span class="num">13</span>, <span class="type">HIGH</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+  <span class="fn">digitalWrite</span>(<span class="num">13</span>, <span class="type">LOW</span>);
+  <span class="fn">delay</span>(<span class="num">1000</span>);
+}</pre>
+      </div>
+      <div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:12px">핵심 함수</h4>
+        <div class="func-ref">
+          <span class="dot" style="background:var(--cyan)"></span>
+          <code style="color:var(--cyan)">pinMode(핀, 모드)</code>
+          <span class="desc">INPUT / OUTPUT 설정</span>
+        </div>
+        <div class="func-ref">
+          <span class="dot" style="background:var(--blue)"></span>
+          <code style="color:var(--blue)">digitalWrite(핀, 값)</code>
+          <span class="desc">HIGH(5V) / LOW(0V)</span>
+        </div>
+        <div class="func-ref">
+          <span class="dot" style="background:var(--amber)"></span>
+          <code style="color:var(--amber)">delay(ms)</code>
+          <span class="desc">1000 = 1초</span>
+        </div>
+        <div class="circuit" style="margin-top:18px">
+          <strong>회로:</strong> 13번 핀 → 저항(220Ω) → LED(+) → GND<br>
+          UNO 보드의 내장 LED로 바로 테스트도 가능!
+        </div>
+      </div>
+    </div>
+
+    <!-- 디지털 입력: 버튼 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:56px 0 20px;letter-spacing:-0.5px">② 디지털 입력 — 버튼 읽기</h3>
+    <div class="code-section reveal">
+      <div>
+        <p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:16px">
+          <strong style="color:var(--text)">INPUT_PULLUP</strong> 모드를 쓰면 안 눌렀을 때 자동으로 HIGH가 됩니다.
+          버튼을 누르면 GND와 연결되어 LOW로 떨어져요.
+          <strong style="color:var(--cyan)">"눌렀을 때 LOW"</strong>라는 게 처음엔 헷갈리지만 익숙해지면 가장 편한 방식입니다.
+        </p>
+        <div class="func-ref">
+          <span class="dot" style="background:var(--amber)"></span>
+          <code style="color:var(--amber)">digitalRead(핀)</code>
+          <span class="desc">HIGH 또는 LOW 반환</span>
+        </div>
+        <div class="info-box warn" style="margin-top:14px">
+          <span class="icon">⚠️</span>
+          <div class="content"><strong>채터링(chattering):</strong> 버튼은 한 번 눌러도 짧은 시간 동안 HIGH/LOW가 여러 번 튑니다. 정밀한 입력엔 디바운싱이 필요해요.</div>
+        </div>
+      </div>
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">Button.ino</span>
+        </div>
+<pre><span class="kw">const int</span> <span class="var">BTN</span> = <span class="num">2</span>;
+<span class="kw">const int</span> <span class="var">LED</span> = <span class="num">13</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="var">BTN</span>, <span class="type">INPUT_PULLUP</span>);
+  <span class="fn">pinMode</span>(<span class="var">LED</span>, <span class="type">OUTPUT</span>);
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">if</span> (<span class="fn">digitalRead</span>(<span class="var">BTN</span>) == <span class="type">LOW</span>) {
+    <span class="fn">digitalWrite</span>(<span class="var">LED</span>, <span class="type">HIGH</span>);
+  } <span class="kw">else</span> {
+    <span class="fn">digitalWrite</span>(<span class="var">LED</span>, <span class="type">LOW</span>);
+  }
+}</pre>
+      </div>
+    </div>
+
+    <!-- 시리얼 통신 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:56px 0 20px;letter-spacing:-0.5px">③ 시리얼 통신 — 디버깅의 생명줄</h3>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">Serial.ino</span>
+        </div>
+<pre><span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">Serial.begin</span>(<span class="num">9600</span>);   <span class="cmt">// 속도 9600bps</span>
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">int</span> <span class="var">val</span> = <span class="fn">analogRead</span>(<span class="type">A0</span>);
+  <span class="fn">Serial.print</span>(<span class="str">"값: "</span>);
+  <span class="fn">Serial.println</span>(<span class="var">val</span>);
+  <span class="fn">delay</span>(<span class="num">200</span>);
+}</pre>
+      </div>
+      <div>
+        <p style="font-size:14px;color:var(--text2);line-height:1.85;margin-bottom:16px">
+          하드웨어 코딩에서 <strong style="color:var(--text)">"눈"</strong> 역할을 하는 게 시리얼 통신입니다.
+          센서 값이 진짜로 잘 들어오는지, 코드가 어디서 멈췄는지 — 전부 시리얼 모니터로 확인합니다.
+          <strong style="color:var(--cyan)">앞으로 모든 실습에서 시리얼은 항상 켜두세요.</strong>
+        </p>
+        <div class="func-ref">
+          <span class="dot" style="background:var(--cyan)"></span>
+          <code style="color:var(--cyan)">Serial.begin(9600)</code>
+          <span class="desc">통신 시작</span>
+        </div>
+        <div class="func-ref">
+          <span class="dot" style="background:var(--blue)"></span>
+          <code style="color:var(--blue)">Serial.println(값)</code>
+          <span class="desc">출력 + 줄바꿈</span>
+        </div>
+        <div class="info-box tip" style="margin-top:14px">
+          <span class="icon">💡</span>
+          <div class="content">IDE 우측 상단 돋보기 = 시리얼 모니터. <strong>속도(보레이트)가 코드와 같아야</strong> 글자가 안 깨집니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 핵심 개념 카드 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:56px 0 20px;letter-spacing:-0.5px">꼭 기억해야 할 4가지 개념</h3>
+    <div class="card-grid reveal">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(6,214,160,0.12)">🔁</div>
+        <h3>setup &amp; loop</h3>
+        <p>setup은 1번, loop는 영원히. 모든 동작은 loop 안에 들어갑니다.</p>
+        <span class="tag" style="background:rgba(6,214,160,0.1);color:var(--cyan)">CORE</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(59,130,246,0.12)">⚡</div>
+        <h3>디지털 vs 아날로그</h3>
+        <p>디지털 = 0 또는 1. 아날로그 = 0~1023 사이의 연속 값. 센서 종류에 따라 다릅니다.</p>
+        <span class="tag" style="background:rgba(59,130,246,0.1);color:var(--blue)">I/O</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(245,158,11,0.12)">📡</div>
+        <h3>시리얼은 항상</h3>
+        <p>코드가 이상하면 가장 먼저 시리얼 모니터부터 켜세요. 90%는 거기서 해결됩니다.</p>
+        <span class="tag" style="background:rgba(245,158,11,0.1);color:var(--amber)">DEBUG</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(239,68,68,0.12)">🔌</div>
+        <h3>GND는 하나로</h3>
+        <p>여러 전원을 쓸 때 모든 GND를 하나로 묶지 않으면 회로가 절대 동작하지 않습니다.</p>
+        <span class="tag" style="background:rgba(239,68,68,0.1);color:var(--red)">DON'T</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ ⑥ 라인트레이서 제작 ═══════════════════ -->
+<section id="linetracer">
+  <div class="container">
+    <div class="section-label reveal">PROJECT · LINE TRACER</div>
+
+    <!-- 표지 (Cover) -->
+    <div class="project-cover reveal">
+      <div class="cover-tag">PROJECT 01 · DAY 1 FINAL</div>
+      <h2 class="cover-title">라인트레이서 <span class="accent">제작</span></h2>
+      <div class="cover-en">Line Tracer Build</div>
+      <div class="cover-desc">
+        <strong>검은 선을 따라 스스로 달리는 차</strong>를 직접 만듭니다.
+        IR 센서가 길을 보고, 아두이노가 판단하고, 모터가 움직이는 — 자율주행의 가장 기본이 되는 형태입니다.
+        오늘 배운 모든 것이 이 한 대의 차로 모입니다.
+      </div>
+      <div class="cover-tags">
+        <span><strong>SENSOR</strong> IR ×2</span>
+        <span><strong>DRIVER</strong> L298N</span>
+        <span><strong>MOTOR</strong> DC ×2</span>
+        <span><strong>MCU</strong> Arduino UNO</span>
+      </div>
+    </div>
+
+    <!-- 라인트레이서 간단한 설명 + 원리 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:48px 0 18px;letter-spacing:-0.5px">① 라인트레이서란? — 설명과 원리</h3>
+    <p class="reveal" style="font-size:15.5px;color:var(--text2);line-height:1.9;margin-bottom:18px;max-width:780px">
+      라인트레이서는 이름 그대로 <strong style="color:var(--text)">"선(line)을 추적(trace)하는" 차</strong>입니다.
+      바닥에 그려진 검은 선을 두 개의 IR 센서가 감시하면서, 선이 왼쪽으로 치우치면 왼쪽으로 꺾고, 오른쪽으로 치우치면 오른쪽으로 꺾어
+      <strong style="color:var(--cyan)">"항상 두 센서 사이에 선이 있도록"</strong> 차를 조정합니다.
+      복잡해 보이지만 결국 <em>센서 읽기 → 조건문 → 모터 명령</em>의 단순한 반복이에요.
+    </p>
+    <p class="reveal" style="font-size:14.5px;color:var(--text2);line-height:1.85;margin-bottom:24px">
+      차의 앞쪽 바닥에 <strong style="color:var(--cyan)">IR 적외선 센서 2개</strong>를 답니다. 적외선을 쏘고 반사되어 돌아오는 빛의 양을 측정해서,
+      바닥이 흰색(반사 많음)인지 검은색(반사 적음)인지 판단해요. 두 센서의 조합에 따라 다음 <strong>4가지 상태</strong>가 만들어집니다.
+    </p>
+
+    <!-- 4가지 상태 -->
+    <div class="logic-grid reveal">
+      <div class="logic-case">
+        <div class="lc-sensors">
+          <span class="lc-dot"></span>
+          <span class="lc-dot"></span>
+        </div>
+        <div class="lc-state">L=0 · R=0</div>
+        <h4>직진 ⬆️</h4>
+        <p>둘 다 흰 바닥</p>
+      </div>
+      <div class="logic-case">
+        <div class="lc-sensors">
+          <span class="lc-dot on"></span>
+          <span class="lc-dot"></span>
+        </div>
+        <div class="lc-state">L=1 · R=0</div>
+        <h4>좌회전 ↩️</h4>
+        <p>왼쪽이 선 감지</p>
+      </div>
+      <div class="logic-case">
+        <div class="lc-sensors">
+          <span class="lc-dot"></span>
+          <span class="lc-dot on"></span>
+        </div>
+        <div class="lc-state">L=0 · R=1</div>
+        <h4>우회전 ↪️</h4>
+        <p>오른쪽이 선 감지</p>
+      </div>
+      <div class="logic-case">
+        <div class="lc-sensors">
+          <span class="lc-dot on"></span>
+          <span class="lc-dot on"></span>
+        </div>
+        <div class="lc-state">L=1 · R=1</div>
+        <h4>정지 🛑</h4>
+        <p>교차로/도착점</p>
+      </div>
+    </div>
+
+    <div class="info-box tip reveal" style="margin-top:24px">
+      <span class="icon">🧠</span>
+      <div class="content">
+        <strong>이 4가지 상태 = if-else 4줄.</strong> 자율주행이라는 거창한 단어가 결국 "센서 보고 조건문 분기"라는 걸 직접 느껴봅시다.
+      </div>
+    </div>
+
+    <div class="info-box warn reveal" style="margin-top:14px">
+      <span class="icon">🚸</span>
+      <div class="content">
+        <strong>여기서 한 단계 더 — 충돌 방지.</strong> 진짜 자율주행차는 라인만 보지 않습니다. 앞에 <strong>보행자나 장애물</strong>이 있으면 무조건 멈춰야 해요.
+        그래서 우리는 차 앞쪽에 <strong>초음파 센서(HC-SR04)</strong>를 하나 더 달아서, 일정 거리 이내(15cm)에 무언가 있으면 라인 추적을 잠시 중단하고 정지하는 안전 기능을 추가합니다.
+        <strong style="color:var(--cyan)">"안전이 라인보다 우선"</strong>이라는 자율주행의 핵심 원칙이에요.
+      </div>
+    </div>
+
+    <!-- ② 왜 라인트레이서? -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:64px 0 18px;letter-spacing:-0.5px">② 그런데, 왜 라인트레이서일까?</h3>
+    <div class="big-block reveal">
+      <div class="label">QUESTION</div>
+      <div class="big-q">"자율주행 자동차를 배운다면서, 왜 처음에 라인만 따라가는 차를 만들어요?"</div>
+      <div class="big-a">
+        좋은 질문입니다. 답은 두 가지예요.<br><br>
+        <strong>① 라인트레이서 = 차선 검출의 가장 첫 단계.</strong>
+        진짜 자율주행차도 결국은 "도로의 차선을 보고 그 안에서 달린다"는 일을 합니다.
+        라인트레이서는 그 일을 <strong>가장 기본적인 센서(IR)와 가장 단순한 알고리즘(if 분기)</strong>으로 해보는 것이에요.
+        내일 OpenCV로 차선 검출을 배울 때, 오늘 만든 이 차가 "아, 똑같은 일을 카메라로 하는 거구나" 하고 확 연결됩니다.<br><br>
+        <strong>② 아두이노 수업의 개념 복습.</strong>
+        앞에서 배운 setup/loop, digitalRead, digitalWrite, if 분기, 시리얼 — 이 모든 것이 라인트레이서 한 대 안에 다 들어갑니다.
+        새로운 걸 배우는 게 아니라, <strong>방금 배운 것으로 진짜 동작하는 무언가를 완성하는 시간</strong>이에요.<br><br>
+        그래서 오늘 만들 이 작은 차 한 대가, 사실은 <strong>자율주행이라는 거대한 주제로 들어가는 가장 정확한 첫 발자국</strong>입니다.
+      </div>
+    </div>
+
+    <!-- ③ 만드는 과정 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:64px 0 18px;letter-spacing:-0.5px">③ 만드는 과정</h3>
+    <p class="reveal" style="font-size:14.5px;color:var(--text2);line-height:1.85;margin-bottom:28px;max-width:780px">
+      부품을 챙기고 → 핀을 연결하고 → 차로 조립하면 끝. 코드 작성 전에 <strong style="color:var(--text)">물리적인 준비</strong>를 먼저 마쳐야 코드를 짤 때 헤매지 않습니다.
+    </p>
+
+    <!-- 부품 -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:32px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 3-1 · 준비할 부품</h4>
+    <div class="card-grid reveal">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(6,214,160,0.12)">👁️</div>
+        <h3>IR 센서 ×2</h3>
+        <p>TCRT5000 계열. 흰/검 바닥을 구분하는 "눈".</p>
+        <span class="tag" style="background:rgba(6,214,160,0.1);color:var(--cyan)">D2, D3</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(245,158,11,0.12)">📏</div>
+        <h3>초음파 센서 HC-SR04</h3>
+        <p>차 앞 장애물까지의 거리를 측정. 보행자·벽 감지용.</p>
+        <span class="tag" style="background:rgba(245,158,11,0.1);color:var(--amber)">D9, D10</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(59,130,246,0.12)">⚙️</div>
+        <h3>DC 기어드 모터 ×2</h3>
+        <p>바퀴를 돌리는 근육. 좌우 독립 제어.</p>
+        <span class="tag" style="background:rgba(59,130,246,0.1);color:var(--blue)">MOTOR</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(236,72,153,0.12)">🔋</div>
+        <h3>L298N 모터 드라이버</h3>
+        <p>아두이노의 약한 신호를 강한 모터 전력으로 증폭.</p>
+        <span class="tag" style="background:rgba(236,72,153,0.1);color:var(--pink)">D5~D8</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(167,139,250,0.12)">🔌</div>
+        <h3>배터리 + 섀시</h3>
+        <p>건전지 홀더(7.4V 권장), 바퀴, 볼캐스터, 점퍼선.</p>
+        <span class="tag" style="background:rgba(167,139,250,0.1);color:var(--purple)">POWER</span>
+      </div>
+    </div>
+
+    <!-- 핀 연결 -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:32px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 3-2 · 핀 연결</h4>
+    <div class="circuit reveal">
+      <strong>IR 센서 (왼쪽):</strong> VCC→5V | GND→GND | OUT→D2<br>
+      <strong>IR 센서 (오른쪽):</strong> VCC→5V | GND→GND | OUT→D3<br>
+      <strong>초음파 HC-SR04:</strong> VCC→5V | GND→GND | Trig→D9 | Echo→D10<br>
+      <strong>L298N IN1, IN2:</strong> D5, D6 (왼쪽 모터 방향)<br>
+      <strong>L298N IN3, IN4:</strong> D7, D8 (오른쪽 모터 방향)<br>
+      <strong>L298N 전원:</strong> 배터리(+) → 12V, 배터리(−) → GND<br>
+      <strong style="color:var(--red)">⚠ 필수:</strong> 배터리 GND 와 아두이노 GND를 반드시 함께 연결!
+    </div>
+
+    <div class="info-box danger reveal">
+      <span class="icon">🚫</span>
+      <div class="content"><strong>가장 흔한 실수 1위:</strong> 배터리 GND와 아두이노 GND를 따로 두는 것. 모든 GND는 무조건 하나로 묶어야 합니다.</div>
+    </div>
+
+    <!-- 조립 (3-3) — 코드 앞에 배치 -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:32px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 3-3 · 조립 &amp; 테스트 순서</h4>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num" style="background:rgba(6,214,160,0.15);color:var(--cyan)">1</div>
+        <h4>트랙 만들기</h4>
+        <p>흰 종이에 검은 절연 테이프<br>(폭 18mm 추천)</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(59,130,246,0.15);color:var(--blue)">2</div>
+        <h4>센서 점검</h4>
+        <p>바퀴 들고 시리얼로<br>L/R 값 먼저 확인</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(245,158,11,0.15);color:var(--amber)">3</div>
+        <h4>방향 점검</h4>
+        <p>forward 했을 때<br>둘 다 전진하는지 확인</p>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:rgba(167,139,250,0.15);color:var(--purple)">4</div>
+        <h4>주행!</h4>
+        <p>트랙 위에 올리고<br>출발 🚗</p>
+      </div>
+    </div>
+
+    <!-- ④ 코드 살펴보기 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:64px 0 18px;letter-spacing:-0.5px">④ 코드 살펴보기</h3>
+    <p class="reveal" style="font-size:14.5px;color:var(--text2);line-height:1.85;margin-bottom:28px;max-width:780px">
+      한 번에 전체 코드를 보면 길어 보이지만, 사실은 <strong style="color:var(--cyan)">"핀 정의 → 모터 동작 함수 → 거리 측정 함수 → 메인 loop"</strong> 네 덩어리로 나눠집니다.
+      한 덩어리씩 보면 굉장히 단순해요. 각 부분이 무엇을 하는지 먼저 이해하고, 맨 마지막에 합쳐서 전체를 봅시다.
+    </p>
+
+    <!-- 4-1. 핀 정의 + setup -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:32px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 4-1 · 핀 정의와 setup()</h4>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">① 핀 정의 + setup</span>
+        </div>
+<pre><span class="kw">const int</span> <span class="var">IR_L</span> = <span class="num">2</span>;
+<span class="kw">const int</span> <span class="var">IR_R</span> = <span class="num">3</span>;
+<span class="kw">const int</span> <span class="var">TRIG</span> = <span class="num">9</span>;   <span class="cmt">// 초음파 발사</span>
+<span class="kw">const int</span> <span class="var">ECHO</span> = <span class="num">10</span>;  <span class="cmt">// 초음파 수신</span>
+<span class="kw">const int</span> <span class="var">IN1</span> = <span class="num">5</span>;   <span class="cmt">// 왼쪽 모터</span>
+<span class="kw">const int</span> <span class="var">IN2</span> = <span class="num">6</span>;
+<span class="kw">const int</span> <span class="var">IN3</span> = <span class="num">7</span>;   <span class="cmt">// 오른쪽 모터</span>
+<span class="kw">const int</span> <span class="var">IN4</span> = <span class="num">8</span>;
+
+<span class="kw">const float</span> <span class="var">STOP_DIST</span> = <span class="num">15.0</span>;  <span class="cmt">// cm — 이보다 가까우면 정지</span>
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="var">IR_L</span>, <span class="type">INPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IR_R</span>, <span class="type">INPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">TRIG</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">ECHO</span>, <span class="type">INPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IN1</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IN2</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IN3</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IN4</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">Serial.begin</span>(<span class="num">9600</span>);
+}</pre>
+      </div>
+      <div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:10px">📌 무엇을 하는가</h4>
+        <p style="font-size:13.5px;color:var(--text2);line-height:1.8;margin-bottom:14px">
+          <strong style="color:var(--text)">"어떤 핀에 무엇이 연결되어 있는지"</strong>를 코드에 먼저 알려주는 부분입니다.
+          이렇게 const로 이름을 붙여두면 나중에 핀 번호가 바뀌어도 한 줄만 고치면 돼서 편해요.
+          이번엔 충돌 방지용 <strong style="color:var(--amber)">TRIG/ECHO</strong>와 <strong style="color:var(--amber)">STOP_DIST</strong>(정지 거리 기준값)도 같이 정의합니다.
+        </p>
+        <div class="func-ref" style="margin:8px 0">
+          <span class="dot" style="background:var(--cyan)"></span>
+          <code style="color:var(--cyan)">const int</code>
+          <span class="desc">바뀌지 않는 정수 상수</span>
+        </div>
+        <div class="func-ref" style="margin:8px 0">
+          <span class="dot" style="background:var(--blue)"></span>
+          <code style="color:var(--blue)">pinMode(핀, 모드)</code>
+          <span class="desc">INPUT(읽기) / OUTPUT(쓰기)</span>
+        </div>
+        <div class="info-box tip" style="margin:14px 0 0">
+          <span class="icon">💡</span>
+          <div class="content"><strong>STOP_DIST를 const로 빼둔 이유:</strong> 나중에 더 멀리/가까이로 바꾸고 싶을 때 이 숫자 한 곳만 바꾸면 됩니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-2. 동작 함수 -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:48px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 4-2 · 모터 동작 함수 4개</h4>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">② 동작 함수</span>
+        </div>
+<pre><span class="kw">void</span> <span class="fn">forward</span>() {   <span class="cmt">// 직진</span>
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">HIGH</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">HIGH</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+<span class="kw">void</span> <span class="fn">turnLeft</span>() {  <span class="cmt">// 좌회전: 왼쪽 정지</span>
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">HIGH</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+<span class="kw">void</span> <span class="fn">turnRight</span>() { <span class="cmt">// 우회전: 오른쪽 정지</span>
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">HIGH</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+<span class="kw">void</span> <span class="fn">stopCar</span>() {   <span class="cmt">// 모두 정지</span>
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}</pre>
+      </div>
+      <div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:10px">📌 무엇을 하는가</h4>
+        <p style="font-size:13.5px;color:var(--text2);line-height:1.8;margin-bottom:14px">
+          차가 할 수 있는 <strong style="color:var(--text)">4가지 동작</strong>(직진/좌회전/우회전/정지)을 각각 함수로 미리 만들어 두는 부분입니다.
+          이렇게 분리해 두면 메인 loop에서는 <code style="font-family:var(--font-code);color:var(--cyan);background:rgba(6,214,160,0.08);padding:2px 6px;border-radius:4px">forward();</code> 한 줄만 부르면 됩니다.
+        </p>
+        <div class="info-box tip" style="margin:14px 0">
+          <span class="icon">🎯</span>
+          <div class="content">
+            <strong>핵심 아이디어:</strong> L298N은 모터마다 <strong>IN1·IN2 두 핀의 조합</strong>으로 방향을 결정합니다.<br>
+            HIGH-LOW = 정방향 / LOW-HIGH = 역방향 / LOW-LOW = 정지.
+          </div>
+        </div>
+        <div class="info-box warn" style="margin:14px 0 0">
+          <span class="icon">↩️</span>
+          <div class="content">조립 후 한쪽 바퀴가 거꾸로 돌면 코드를 고치지 말고 <strong>OUT 선 2개를 서로 바꿔 끼우세요</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-3. 거리 측정 함수 -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:48px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 4-3 · 거리 측정 함수 (초음파)</h4>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">③ readDistance()</span>
+        </div>
+<pre><span class="kw">float</span> <span class="fn">readDistance</span>() {
+  <span class="cmt">// 10μs 짧은 펄스로 초음파 발사</span>
+  <span class="fn">digitalWrite</span>(<span class="var">TRIG</span>, <span class="type">LOW</span>);
+  <span class="fn">delayMicroseconds</span>(<span class="num">2</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">TRIG</span>, <span class="type">HIGH</span>);
+  <span class="fn">delayMicroseconds</span>(<span class="num">10</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">TRIG</span>, <span class="type">LOW</span>);
+
+  <span class="cmt">// 메아리가 돌아온 시간(μs) 측정 (timeout 30ms)</span>
+  <span class="kw">long</span> <span class="var">dur</span> = <span class="fn">pulseIn</span>(<span class="var">ECHO</span>, <span class="type">HIGH</span>, <span class="num">30000</span>);
+
+  <span class="cmt">// 시간 × 음속(0.034cm/μs) ÷ 2(왕복)</span>
+  <span class="kw">return</span> <span class="var">dur</span> * <span class="num">0.034</span> / <span class="num">2</span>;
+}</pre>
+      </div>
+      <div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:10px">📌 무엇을 하는가</h4>
+        <p style="font-size:13.5px;color:var(--text2);line-height:1.8;margin-bottom:14px">
+          앞쪽 장애물까지의 거리를 <strong style="color:var(--text)">cm 단위로 반환</strong>하는 함수입니다.
+          초음파를 쏘고 → 돌아오는 시간을 재고 → 음속(약 340m/s)으로 거리를 계산하는 흐름이에요.
+          나누기 2를 하는 이유는 <strong style="color:var(--cyan)">왕복</strong> 시간이라서 편도 거리만 필요하기 때문입니다.
+        </p>
+        <div class="func-ref" style="margin:8px 0">
+          <span class="dot" style="background:var(--amber)"></span>
+          <code style="color:var(--amber)">pulseIn(핀, HIGH, timeout)</code>
+          <span class="desc">HIGH 지속 시간(μs) 측정</span>
+        </div>
+        <div class="info-box tip" style="margin:14px 0 0">
+          <span class="icon">⏱️</span>
+          <div class="content">
+            <strong>timeout 30000(30ms)이 중요한 이유:</strong> 메아리가 안 돌아오면 영원히 기다리게 됩니다. timeout을 걸어두면 측정 실패 시 0을 반환하고 다음 루프로 넘어가요.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-4. 메인 loop -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:48px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 4-4 · 메인 loop — 안전 체크 + 라인 추적</h4>
+    <div class="code-section reveal">
+      <div class="code-block">
+        <div class="code-header">
+          <div class="code-dots"><span></span><span></span><span></span></div>
+          <span class="code-title">④ 메인 loop</span>
+        </div>
+<pre><span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// ── 1단계: 안전 우선 (충돌 방지) ──</span>
+  <span class="kw">float</span> <span class="var">dist</span> = <span class="fn">readDistance</span>();
+  <span class="kw">if</span> (<span class="var">dist</span> &gt; <span class="num">0</span> &amp;&amp; <span class="var">dist</span> &lt; <span class="var">STOP_DIST</span>) {
+    <span class="fn">stopCar</span>();
+    <span class="fn">Serial.print</span>(<span class="str">"⚠ 장애물 "</span>);
+    <span class="fn">Serial.print</span>(<span class="var">dist</span>);
+    <span class="fn">Serial.println</span>(<span class="str">"cm — 정지"</span>);
+    <span class="fn">delay</span>(<span class="num">100</span>);
+    <span class="kw">return</span>;     <span class="cmt">// 라인 추적 건너뛰기</span>
+  }
+
+  <span class="cmt">// ── 2단계: 라인 추적 ──</span>
+  <span class="kw">int</span> <span class="var">L</span> = <span class="fn">digitalRead</span>(<span class="var">IR_L</span>);
+  <span class="kw">int</span> <span class="var">R</span> = <span class="fn">digitalRead</span>(<span class="var">IR_R</span>);
+
+  <span class="kw">if</span> (<span class="var">L</span> == <span class="num">0</span> &amp;&amp; <span class="var">R</span> == <span class="num">0</span>)
+    <span class="fn">forward</span>();    <span class="cmt">// 직진</span>
+  <span class="kw">else if</span> (<span class="var">L</span> == <span class="num">1</span> &amp;&amp; <span class="var">R</span> == <span class="num">0</span>)
+    <span class="fn">turnLeft</span>();   <span class="cmt">// 좌회전</span>
+  <span class="kw">else if</span> (<span class="var">L</span> == <span class="num">0</span> &amp;&amp; <span class="var">R</span> == <span class="num">1</span>)
+    <span class="fn">turnRight</span>();  <span class="cmt">// 우회전</span>
+  <span class="kw">else</span>
+    <span class="fn">stopCar</span>();    <span class="cmt">// 정지</span>
+}</pre>
+      </div>
+      <div>
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:10px">📌 무엇을 하는가</h4>
+        <p style="font-size:13.5px;color:var(--text2);line-height:1.8;margin-bottom:14px">
+          loop는 끝없이 반복되면서 매번 <strong style="color:var(--text)">두 단계</strong>를 거칩니다.<br>
+          <strong style="color:var(--amber)">① 안전 체크</strong>: 앞 15cm 이내에 무언가 있으면 즉시 정지하고 라인 추적은 건너뜀.<br>
+          <strong style="color:var(--cyan)">② 라인 추적</strong>: 장애물이 없을 때만 평소처럼 IR 센서로 선을 따라감.
+        </p>
+        <div class="info-box quote" style="margin:14px 0">
+          <span class="icon">💬</span>
+          <div class="content">
+            <strong>이게 자율주행의 핵심 사고방식입니다.</strong> "주행"과 "안전"이 충돌하면 항상 <strong style="color:var(--cyan)">안전이 이긴다</strong>는 우선순위.
+            진짜 자율주행차도 똑같이 작동해요 — 신호등이 초록불이어도 사람이 길에 있으면 멈추는 것처럼요.
+          </div>
+        </div>
+        <div class="info-box warn" style="margin:14px 0 0">
+          <span class="icon">🔑</span>
+          <div class="content">
+            <strong>return의 역할:</strong> 장애물이 있으면 <code style="font-family:var(--font-code);color:var(--cyan);background:rgba(6,214,160,0.08);padding:2px 6px;border-radius:4px">return;</code>으로 loop를 즉시 끝냅니다. 그래야 모터를 정지시킨 직후에 라인 추적 코드가 다시 모터를 켜지 않아요.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-5. 전체 코드 -->
+    <h4 class="reveal" style="font-size:13px;font-weight:700;color:var(--cyan);margin:48px 0 14px;font-family:var(--font-code);letter-spacing:1.5px">STEP 4-5 · 전체 코드 (모두 합치기)</h4>
+    <p class="reveal" style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:18px">
+      위 네 덩어리를 그대로 이어 붙이면 충돌 방지가 적용된 라인트레이서 코드가 완성됩니다. 이걸 아두이노 IDE에 그대로 복사해서 업로드하세요.
+    </p>
+    <div class="code-block reveal">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-title">LineTracer.ino — 완성품 (충돌 방지 포함)</span>
+      </div>
+<pre><span class="cmt">// ===== 자율주행 1단계: 라인트레이서 + 충돌 방지 =====</span>
+<span class="cmt">// IR 센서: 검은 선 = 1(HIGH), 흰 바닥 = 0(LOW)</span>
+<span class="cmt">// HC-SR04: 앞 STOP_DIST(15cm) 이내 장애물 감지 시 정지</span>
+
+<span class="kw">const int</span> <span class="var">IR_L</span> = <span class="num">2</span>;
+<span class="kw">const int</span> <span class="var">IR_R</span> = <span class="num">3</span>;
+<span class="kw">const int</span> <span class="var">TRIG</span> = <span class="num">9</span>;
+<span class="kw">const int</span> <span class="var">ECHO</span> = <span class="num">10</span>;
+<span class="kw">const int</span> <span class="var">IN1</span> = <span class="num">5</span>;   <span class="cmt">// 왼쪽 모터</span>
+<span class="kw">const int</span> <span class="var">IN2</span> = <span class="num">6</span>;
+<span class="kw">const int</span> <span class="var">IN3</span> = <span class="num">7</span>;   <span class="cmt">// 오른쪽 모터</span>
+<span class="kw">const int</span> <span class="var">IN4</span> = <span class="num">8</span>;
+
+<span class="kw">const float</span> <span class="var">STOP_DIST</span> = <span class="num">15.0</span>;
+
+<span class="kw">void</span> <span class="fn">setup</span>() {
+  <span class="fn">pinMode</span>(<span class="var">IR_L</span>, <span class="type">INPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IR_R</span>, <span class="type">INPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">TRIG</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">ECHO</span>, <span class="type">INPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IN1</span>, <span class="type">OUTPUT</span>); <span class="fn">pinMode</span>(<span class="var">IN2</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">pinMode</span>(<span class="var">IN3</span>, <span class="type">OUTPUT</span>); <span class="fn">pinMode</span>(<span class="var">IN4</span>, <span class="type">OUTPUT</span>);
+  <span class="fn">Serial.begin</span>(<span class="num">9600</span>);
+}
+
+<span class="cmt">// --- 모터 동작 함수 ---</span>
+<span class="kw">void</span> <span class="fn">forward</span>() {
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">HIGH</span>); <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">HIGH</span>); <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+<span class="kw">void</span> <span class="fn">turnLeft</span>() {
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">LOW</span>);  <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">HIGH</span>); <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+<span class="kw">void</span> <span class="fn">turnRight</span>() {
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">HIGH</span>); <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">LOW</span>);  <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+<span class="kw">void</span> <span class="fn">stopCar</span>() {
+  <span class="fn">digitalWrite</span>(<span class="var">IN1</span>, <span class="type">LOW</span>); <span class="fn">digitalWrite</span>(<span class="var">IN2</span>, <span class="type">LOW</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">IN3</span>, <span class="type">LOW</span>); <span class="fn">digitalWrite</span>(<span class="var">IN4</span>, <span class="type">LOW</span>);
+}
+
+<span class="cmt">// --- 거리 측정 함수 ---</span>
+<span class="kw">float</span> <span class="fn">readDistance</span>() {
+  <span class="fn">digitalWrite</span>(<span class="var">TRIG</span>, <span class="type">LOW</span>);  <span class="fn">delayMicroseconds</span>(<span class="num">2</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">TRIG</span>, <span class="type">HIGH</span>); <span class="fn">delayMicroseconds</span>(<span class="num">10</span>);
+  <span class="fn">digitalWrite</span>(<span class="var">TRIG</span>, <span class="type">LOW</span>);
+  <span class="kw">long</span> <span class="var">dur</span> = <span class="fn">pulseIn</span>(<span class="var">ECHO</span>, <span class="type">HIGH</span>, <span class="num">30000</span>);
+  <span class="kw">return</span> <span class="var">dur</span> * <span class="num">0.034</span> / <span class="num">2</span>;
+}
+
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="cmt">// 1) 안전 우선 — 장애물이 있으면 정지</span>
+  <span class="kw">float</span> <span class="var">dist</span> = <span class="fn">readDistance</span>();
+  <span class="kw">if</span> (<span class="var">dist</span> &gt; <span class="num">0</span> &amp;&amp; <span class="var">dist</span> &lt; <span class="var">STOP_DIST</span>) {
+    <span class="fn">stopCar</span>();
+    <span class="fn">Serial.print</span>(<span class="str">"⚠ 장애물 "</span>); <span class="fn">Serial.print</span>(<span class="var">dist</span>); <span class="fn">Serial.println</span>(<span class="str">"cm"</span>);
+    <span class="fn">delay</span>(<span class="num">100</span>);
+    <span class="kw">return</span>;
+  }
+
+  <span class="cmt">// 2) 라인 추적</span>
+  <span class="kw">int</span> <span class="var">L</span> = <span class="fn">digitalRead</span>(<span class="var">IR_L</span>);
+  <span class="kw">int</span> <span class="var">R</span> = <span class="fn">digitalRead</span>(<span class="var">IR_R</span>);
+
+  <span class="kw">if</span> (<span class="var">L</span> == <span class="num">0</span> &amp;&amp; <span class="var">R</span> == <span class="num">0</span>)       <span class="fn">forward</span>();
+  <span class="kw">else if</span> (<span class="var">L</span> == <span class="num">1</span> &amp;&amp; <span class="var">R</span> == <span class="num">0</span>)  <span class="fn">turnLeft</span>();
+  <span class="kw">else if</span> (<span class="var">L</span> == <span class="num">0</span> &amp;&amp; <span class="var">R</span> == <span class="num">1</span>)  <span class="fn">turnRight</span>();
+  <span class="kw">else</span>                          <span class="fn">stopCar</span>();
+}</pre>
+    </div>
+
+    <!-- 트러블슈팅 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:64px 0 18px;letter-spacing:-0.5px">⑤ 안 될 때는 이걸 확인하세요</h3>
+    <div class="card-grid reveal">
+      <div class="card">
+        <div class="card-icon" style="background:rgba(239,68,68,0.12)">😵</div>
+        <h3>모터가 안 돔</h3>
+        <p>① 공통 GND ② 배터리 잔량 ③ IN핀 번호 — 이 순서로 점검.</p>
+        <span class="tag" style="background:rgba(239,68,68,0.1);color:var(--red)">전원</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(245,158,11,0.12)">↩️</div>
+        <h3>한쪽으로만 돌아감</h3>
+        <p>한 모터 배선이 반대. OUT 선 두 개를 서로 바꿔 끼우면 끝.</p>
+        <span class="tag" style="background:rgba(245,158,11,0.1);color:var(--amber)">배선</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(59,130,246,0.12)">⚡</div>
+        <h3>너무 빠름</h3>
+        <p>선을 지나쳐 버린다면 analogWrite(150)으로 PWM 속도 낮추기.</p>
+        <span class="tag" style="background:rgba(59,130,246,0.1);color:var(--blue)">속도</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(6,214,160,0.12)">👁️</div>
+        <h3>센서 값 그대로</h3>
+        <p>가변저항(파란 부품) 돌려서 감도 조절 / 센서 높이 5~10mm 유지.</p>
+        <span class="tag" style="background:rgba(6,214,160,0.1);color:var(--cyan)">IR 센서</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(167,139,250,0.12)">📏</div>
+        <h3>장애물 없는데 멈춤</h3>
+        <p>초음파가 바닥/차체를 잘못 읽는 경우. 센서를 좀 더 위로, 정면으로 향하게 고정.</p>
+        <span class="tag" style="background:rgba(167,139,250,0.1);color:var(--purple)">초음파</span>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:rgba(236,72,153,0.12)">🚧</div>
+        <h3>장애물을 못 멈춤</h3>
+        <p>STOP_DIST 값을 키워보세요(예: 20~25cm). 또는 시리얼로 dist 값이 제대로 찍히는지 먼저 확인.</p>
+        <span class="tag" style="background:rgba(236,72,153,0.1);color:var(--pink)">거리</span>
+      </div>
+    </div>
+
+    <!-- 도전 과제 -->
+    <h3 class="reveal" style="font-size:20px;font-weight:700;margin:56px 0 18px;letter-spacing:-0.5px">⑥ 다 한 사람은? 도전 과제</h3>
+    <div class="reason-list reveal">
+      <div class="reason">
+        <div class="r-num" style="background:rgba(167,139,250,0.12);color:var(--purple)">★</div>
+        <div>
+          <h4>PWM으로 부드러운 주행</h4>
+          <p>digitalWrite 대신 analogWrite를 사용해서 속도를 0~255로 조절. 회전할 때 한쪽만 느리게 돌리면 훨씬 부드러워집니다.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="r-num" style="background:rgba(245,158,11,0.12);color:var(--amber)">★★</div>
+        <div>
+          <h4>"선 잃음" 복구 로직</h4>
+          <p>두 센서 모두 흰 바닥인데 사실은 트랙을 이탈한 상황. 마지막으로 봤던 방향을 기억해서 그쪽으로 회전 → 다시 선을 찾는 코드 추가.</p>
+        </div>
+      </div>
+      <div class="reason">
+        <div class="r-num" style="background:rgba(236,72,153,0.12);color:var(--pink)">★★★</div>
+        <div>
+          <h4>3D 프린팅된 섀시로 갈아끼우기</h4>
+          <p>오늘 모델링한 STL을 출력해서 임시 하드보드 대신 진짜 차체로 교체. "내가 디자인한 차"의 완성!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="container">
+    <div class="next">
+      🚀 내일은 라즈베리파이 + OpenCV로 진짜 차선 검출
+    </div>
+    <p>오늘 만든 라인트레이서가 카메라로 길을 보는 차로 진화합니다.</p>
+    <p style="margin-top:16px;color:var(--text3)">수고하셨습니다! 질문 있으면 편하게 물어보세요 🙌</p>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Active nav link
+const sections = document.querySelectorAll('section[id], header[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => {
+    if(window.scrollY >= s.offsetTop - 120) cur = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if(a.getAttribute('href') === '#' + cur) a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
