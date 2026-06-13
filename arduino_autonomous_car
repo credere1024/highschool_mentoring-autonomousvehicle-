@@ -1,0 +1,283 @@
+const int IR_1 = 2;
+const int IR_2 = 3;
+const int TRIG = 9;
+const int ECHO = 10;
+const int MOTOR_1_IN1 = 4;
+const int MOTOR_1_IN2 = 5;
+const int MOTOR_2_IN1 = 6;
+const int MOTOR_2_IN2 = 7;
+const int MOTOR_3_IN1 = 12;
+const int MOTOR_3_IN2 = 13;
+const int MOTOR_4_IN1 = 8;
+const int MOTOR_4_IN2 = 11;
+
+const int WHITE_VALUE = 1;
+const float STOP_DIST = 15.0;
+
+const int FORWARD_RUN_TIME = 30;
+const int FORWARD_STOP_TIME = 45;
+
+const int TURN_RUN_TIME = 55;
+const int TURN_STOP_TIME = 25;
+
+unsigned long lastPrintTime = 0;
+const unsigned long PRINT_INTERVAL = 300;
+
+String currentAction = "READY";
+bool isTurning = false;
+
+void setup() {
+  pinMode(IR_1, INPUT);
+  pinMode(IR_2, INPUT);
+
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+
+  pinMode(MOTOR_1_IN1, OUTPUT);
+  pinMode(MOTOR_1_IN2, OUTPUT);
+
+  pinMode(MOTOR_2_IN1, OUTPUT);
+  pinMode(MOTOR_2_IN2, OUTPUT);
+
+  pinMode(MOTOR_3_IN1, OUTPUT);
+  pinMode(MOTOR_3_IN2, OUTPUT);
+
+  pinMode(MOTOR_4_IN1, OUTPUT);
+  pinMode(MOTOR_4_IN2, OUTPUT);
+
+  Serial.begin(9600);
+
+  stopMotorsOnly();
+}
+
+void motorForward(int IN1, int IN2) {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+}
+
+void motorBackward(int IN1, int IN2) {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+}
+
+void motorStop(int IN1, int IN2) {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+}
+
+void motor1Forward() {
+  motorForward(MOTOR_1_IN1, MOTOR_1_IN2);
+}
+
+void motor2Forward() {
+  motorForward(MOTOR_2_IN1, MOTOR_2_IN2);
+}
+
+void motor3Forward() {
+  motorForward(MOTOR_3_IN1, MOTOR_3_IN2);
+}
+
+void motor4Forward() {
+  motorForward(MOTOR_4_IN1, MOTOR_4_IN2);
+}
+
+void motor1Backward() {
+  motorBackward(MOTOR_1_IN1, MOTOR_1_IN2);
+}
+
+void motor2Backward() {
+  motorBackward(MOTOR_2_IN1, MOTOR_2_IN2);
+}
+
+void motor3Backward() {
+  motorBackward(MOTOR_3_IN1, MOTOR_3_IN2);
+}
+
+void motor4Backward() {
+  motorBackward(MOTOR_4_IN1, MOTOR_4_IN2);
+}
+
+void motor1Stop() {
+  motorStop(MOTOR_1_IN1, MOTOR_1_IN2);
+}
+
+void motor2Stop() {
+  motorStop(MOTOR_2_IN1, MOTOR_2_IN2);
+}
+
+void motor3Stop() {
+  motorStop(MOTOR_3_IN1, MOTOR_3_IN2);
+}
+
+void motor4Stop() {
+  motorStop(MOTOR_4_IN1, MOTOR_4_IN2);
+}
+
+void motors24Forward() {
+  motor2Forward();
+  motor4Forward();
+}
+
+void motors13Forward() {
+  motor1Forward();
+  motor3Forward();
+}
+
+void motors24Backward() {
+  motor2Backward();
+  motor4Backward();
+}
+
+void motors13Backward() {
+  motor1Backward();
+  motor3Backward();
+}
+
+void forward() {
+  motor1Forward();
+  motor2Forward();
+  motor3Forward();
+  motor4Forward();
+
+  isTurning = false;
+  currentAction = "FORWARD";
+}
+
+void turnBySensor1() {
+  motors24Backward();
+  motors13Forward();
+
+  isTurning = true;
+  currentAction = "SPIN_SENSOR_1";
+}
+
+void turnBySensor2() {
+  motors24Forward();
+  motors13Backward();
+
+  isTurning = true;
+  currentAction = "SPIN_SENSOR_2";
+}
+
+void stopCar() {
+  stopMotorsOnly();
+
+  isTurning = false;
+  currentAction = "STOP";
+}
+
+void stopMotorsOnly() {
+  motor1Stop();
+  motor2Stop();
+  motor3Stop();
+  motor4Stop();
+}
+
+float readDistance() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(TRIG, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(TRIG, LOW);
+
+  long dur = pulseIn(ECHO, HIGH, 30000);
+
+  if (dur == 0) {
+    return -1;
+  }
+
+  return dur * 0.034 / 2;
+}
+
+void printStatus(float dist, int sensor1, int sensor2, bool sensor1White, bool sensor2White) {
+  if (millis() - lastPrintTime < PRINT_INTERVAL) {
+    return;
+  }
+
+  lastPrintTime = millis();
+
+  Serial.print("DIST=");
+
+  if (dist < 0) {
+    Serial.print("NO_ECHO");
+  } else {
+    Serial.print(dist);
+    Serial.print("cm");
+  }
+
+  Serial.print(" | IR_1=");
+  Serial.print(sensor1);
+
+  if (sensor1White) {
+    Serial.print(" WHITE");
+  } else {
+    Serial.print(" BLACK");
+  }
+
+  Serial.print(" | IR_2=");
+  Serial.print(sensor2);
+
+  if (sensor2White) {
+    Serial.print(" WHITE");
+  } else {
+    Serial.print(" BLACK");
+  }
+
+  Serial.print(" | ACTION=");
+  Serial.println(currentAction);
+}
+
+void applySlowSpeed() {
+  if (isTurning) {
+    delay(TURN_RUN_TIME);
+    stopMotorsOnly();
+    delay(TURN_STOP_TIME);
+  } else {
+    delay(FORWARD_RUN_TIME);
+    stopMotorsOnly();
+    delay(FORWARD_STOP_TIME);
+  }
+}
+
+void loop() {
+  float dist = readDistance();
+
+  int sensor1 = digitalRead(IR_1);
+  int sensor2 = digitalRead(IR_2);
+
+  bool sensor1White = sensor1 == WHITE_VALUE;
+  bool sensor2White = sensor2 == WHITE_VALUE;
+
+  if (dist > 0 && dist < STOP_DIST) {
+    stopCar();
+    currentAction = "STOP_OBSTACLE";
+
+    printStatus(dist, sensor1, sensor2, sensor1White, sensor2White);
+
+    delay(50);
+    return;
+  }
+
+  if (sensor1White && sensor2White) {
+    forward();
+    currentAction = "FORWARD_BOTH_WHITE";
+  }
+  else if (sensor1White && !sensor2White) {
+    turnBySensor2();
+    currentAction = "IR_1_WHITE_SPIN_SENSOR_2";
+  }
+  else if (!sensor1White && sensor2White) {
+    turnBySensor1();
+    currentAction = "IR_2_WHITE_SPIN_SENSOR_1";
+  }
+  else {
+    forward();
+    currentAction = "FORWARD_NO_DETECT";
+  }
+
+  printStatus(dist, sensor1, sensor2, sensor1White, sensor2White);
+
+  applySlowSpeed();
+}
